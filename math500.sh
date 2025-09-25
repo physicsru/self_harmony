@@ -137,7 +137,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
     trainer.logger=['console','wandb'] \
-    trainer.project_name=verl_ttrl_0907 \
+    trainer.project_name=verl_self_harmony \
     trainer.experiment_name=$EXP_SUFFIX-$WARMUP_VOTING_STRATEGY-1024-qwen3-4b-math500-1-0912 \
     trainer.default_local_dir=./checkpoint/$EXP_SUFFIX-$WARMUP_VOTING_STRATEGY-1024-qwen3-4b-math500-1-0912 \
     trainer.save_freq=-1 \

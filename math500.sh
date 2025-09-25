@@ -1,21 +1,3 @@
-#!/bin/bash
-#SBATCH --job-name=Jmd_reason_data_v1     # Job name
-#SBATCH --partition=P08317            # Partition
-#SBATCH --nodelist=osk-gpu01          # Specific node
-#SBATCH --nodes=1                     # One node
-#SBATCH --ntasks=1                    # One MPI task
-#SBATCH --cpus-per-task=72
-#SBATCH --mem=500G                    # Memory per node
-#SBATCH --gres=gpu:8                  # All GPUs on node
-#SBATCH --time=24:00:00               # Max runtime
-#SBATCH --output=/home/qian.niu/Takoai/Jmed_Rea_data/baseline/new_trio/test_time_MI/run_script/4b/outputs_log/%j_math500.out
-#SBATCH --error=/home/qian.niu/Takoai/Jmed_Rea_data/baseline/new_trio/test_time_MI/run_script/4b/outputs_log/%j_math500.err
-
-#datav1 math500
-#datav2 gsm8k
-# [qian.niu@osk-login01 4b]$ sbatch math500.sh 
-# Submitted batch job 413930
-
 set -x
 module load cuda/12.6
 module load cudnn/9.4.0 

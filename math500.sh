@@ -29,7 +29,7 @@ export NCCL_DEBUG=INFO
 unset VLLM_ATTENTION_BACKEND
 export VLLM_ENABLE_CUDA_GRAPH=true
 export VLLM_ENFORCE_EAGER=false
-export WANDB_API_KEY=3ddada10760318e2ddba58ef19546cd83a11a010
+export WANDB_API_KEY="YOUR WANDB"
 # Default model if LLM_PATH is not provided externally
 export LLM_PATH=${LLM_PATH:-"Qwen/Qwen3-4B-Base"}
 

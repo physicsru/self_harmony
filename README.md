@@ -30,6 +30,10 @@ module load nccl/2.24.3
 
 After installation, you can begin using the framework for your reinforcement learning experiments.
 
+### Training
+
+bash math500.sh
+
 ## Framework Overview
 
 This implementation extends the VERL framework to provide enhanced capabilities for reinforcement learning applications, particularly focused on large language model training and optimization through self-harmony learning approaches.
@@ -57,4 +61,5 @@ The framework includes tools for generating auxiliary training datasets:
 - cuDNN 9.4.0 or compatible
 - NCCL 2.24.3 or compatible
 - Python 3.10
+
 

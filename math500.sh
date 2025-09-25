@@ -78,7 +78,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 
 export PYTHONUNBUFFERED=1
 
-cd /home/qian.niu/Takoai/Jmed_Rea_data/baseline/new_trio/test_time_MI/
+cd [PATH OF SELF_PLAY REPO]
 # Spin the Ray server on the last node
 
 python3 -m verl.trainer.main_ppo \

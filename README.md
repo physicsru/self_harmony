@@ -6,12 +6,15 @@
 
 [![ICLR 2026](https://img.shields.io/badge/ICLR%202026-Poster-b31b1b.svg)](https://openreview.net/forum?id=ZzG6oJ5ehI)
 [![arXiv](https://img.shields.io/badge/arXiv-2511.01191-b31b1b.svg)](https://arxiv.org/abs/2511.01191)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Main Results](https://img.shields.io/badge/📊-Main%20Results-4CAF50.svg)](#-main-results)
+[![Extended Theory](https://img.shields.io/badge/📊-Extended%20Theory-4CAF50.svg)](#-extended-theory)
 [![Quick Start](https://img.shields.io/badge/⚡-Quick%20Start-FF9800.svg)](#-quick-start)
 [![Contact](https://img.shields.io/badge/📬-Contact-9C27B0.svg)](mailto:ru.wang@weblab.t.u-tokyo.ac.jp)
 
-**Ru Wang, Wei Huang, Qi Cao, Yusuke Iwasawa, Yutaka Matsuo, Jiaxian Guo**
+**Ru Wang**$^1$, **Wei Huang**$^{2,3}$, **Qi Cao**$^1$, **Yusuke Iwasawa**$^1$, **Yutaka Matsuo**$^1$, **Jiaxian Guo**$^4$
+
+$^1$The University of Tokyo &emsp; $^2$RIKEN Center for Advanced Intelligence Project <br>
+$^3$The Institute of Statistical Mathematics &emsp; $^4$Google Research Australia
 
 </div>
 
@@ -83,126 +86,88 @@ Thus, the harmonic mean simultaneously prefers labels that are **(i) confident a
 
 ---
 
-## 🧩 Unified Pseudo Code
-
-The following unified pseudo-code covers the **Self-Harmony** algorithm along with its **Multi-View** and **Weighted Prior** generalizations ($K$ views, non-uniform weights $\pi(v_k)$, and consistency regularization $\lambda$).
-
-```python
-# Algorithm: Unified Self-Harmony
-# Covers: Standard, Multi-View, Weighted, and Lambda-adjusted variants
-
-def unified_self_harmony(model, dataset, views=["solver", "reframer"], 
-                        priors=None, lambda_val=1.0, T=TotalSteps):
-    """
-    Unified Self-Harmony Algorithm
-    Args:
-        views: List of roles/prompts defining the views (default: 2 views)
-        priors: List of weights w_k for each view (default: Uniform [1/K]*K)
-        lambda_val: Consistency penalty coefficient (default: 1.0)
-    """
-    if priors is None:
-        priors = [1.0 / len(views)] * len(views) # Uniform Prior
-        
-    theta = model.parameters
-    
-    for t in range(T):
-        buffer = []
-        for x in dataset:
-            all_view_answers = []
-            
-            # --- Multi-View Generation ---
-            for k, view in enumerate(views):
-                # Generate N answers from k-th view
-                # (e.g., via specific prompt or role)
-                ans_k = model.generate(x, view=view, n=N)
-                all_view_answers.append(ans_k)
-            
-            # --- Weighted Invariant Score Consensus ---
-            # Select pseudo-label y* maximizing the generalized score
-            # Score(y) ≈ WeightedArithmeticMean(y) - lambda * Variance(y)
-            # This is efficiently implemented via Weighted Harmonic Mean
-            y_star = weighted_harmonic_mean(
-                all_view_answers, 
-                weights=priors, 
-                lambda_param=lambda_val
-            )
-            
-            # Store experience
-            buffer.append((x, y_star))
-            
-        # --- Optimization ---
-        # Update model to maximize likelihood of y_star
-        loss = compute_loss(model, buffer)
-        theta = update_parameters(loss)
-            
-    return theta
-
-def weighted_harmonic_mean(all_view_answers, weights, lambda_param=1.0):
-    """
-    Computes generalized consistency score:
-    Score(y) = ArithmeticMean(y) - lambda * ConsistencyPenalty(y)
-    
-    If lambda=1.0, this approximates the standard Harmonic Mean.
-    """
-    candidates = unique(all_view_answers)
-    best_y = None
-    max_score = -infinity
-    
-    for y in candidates:
-        # Calculate weighted arithmetic mean (confidence)
-        # p_k(y) is the frequency of answer y in view k
-        arithmetic_mean = sum(w * p_k(y) for w, p_k in zip(weights, views))
-        
-        # Calculate weighted variance (inconsistency)
-        variance = sum(w * (p_k(y) - arithmetic_mean)**2 for w, p_k in zip(weights, views))
-        
-        # Combined Score
-        score = arithmetic_mean - lambda_param * variance
-        
-        if score > max_score:
-            max_score = score
-            best_y = y
-            
-    return best_y
-```
-
----
-
 ## 🧠 Extended Theory
 
-We extend the Self-Harmony framework to broader theoretical settings, including multi-view consistency and flexible consistency regularization.
+We explore the theoretical underpinnings of the Self-Harmony framework, demonstrating that the harmonic mean aggregation is not merely a heuristic but a principled choice derived from information-theoretic objectives.
 
-### 🌐 Generalized Multi-View Consistency
+### 🎛️ Generalization of Theorem 1: Tunable $\lambda$ and Generalized Means
 
-While the main framework uses two views (Solver and Reframer), Self-Harmony generalizes to $K$ arbitrary views $\{v_1, \dots, v_K\}$ (e.g., diverse prompts, different reasoning paths, or heterogeneous models). The generalized consistency score uses the weighted harmonic mean:
+We extend the derivation of the Invariant Infomax objective to the general case where the penalty weight $\lambda$ is tunable. We demonstrate that varying $\lambda$ is theoretically equivalent to selecting a specific **Generalized Mean** for aggregating binary view probabilities.
 
-$$
-\text{Score}(y) = \frac{\sum_{k=1}^K w_k}{\sum_{k=1}^K \frac{w_k}{p(y|v_k)}}
-$$
-
-where $w_k$ represents the reliability or confidence of the $k$-th view. This handles **imbalanced views** where certain perspectives may be more trustworthy than others.
-
-### 🎛️ The $\lambda$ Parameter: Balancing Confidence and Consistency
-
-The harmonic mean can be viewed as a special case of a broader objective that balances arithmetic aggregation and variance reduction. For two views with probabilities $p_0$ and $p_1$:
+Recall the Taylor expansion of the Invariant Infomax objective $J_\lambda(a) = I(Z_a; A) - \lambda I(Z_a; X)$. Using second-order approximations, the objective simplifies to:
 
 $$
-\mathcal{J}_\lambda(y) = \underbrace{\frac{p_0(y) + p_1(y)}{2}}_{\text{Arithmetic Mean}} - \lambda \cdot \underbrace{\frac{(p_0(y) - p_1(y))^2}{2(p_0(y) + p_1(y))}}_{\text{Consistency Penalty}}
+J_{\lambda}(a) \approx \bar p(a) - \lambda \frac{\delta(a)^2}{2\bar p(a)},
 $$
 
-- **$\lambda = 1$**: Recovers the **Harmonic Mean**, strictly penalizing inconsistency.
-- **$\lambda = 0$**: Recovers the **Arithmetic Mean** (Standard Self-Consistency/Majority Voting), ignoring view disagreement.
-- **$\lambda > 1$**: Enforces stronger consistency constraints, useful for highly unreliable models requiring strict agreement.
+where $\bar{p}(a) = \frac{p_0(a)+p_1(a)}{2}$ is the mean probability and $\delta(a) = \frac{p_0(a)-p_1(a)}{2}$ is the semi-difference between views. Note that $\delta(a)^2$ is exactly equivalent to the statistical variance of the two view probabilities.
 
-### ⚖️ Non-Uniform Prior & Weighted Invariant Score
-
-In the appendix, we explore scenarios where view reliability is non-uniform (e.g., the *Original* view is known to be more accurate than the *Reframed* view). We introduce a **Non-Uniform Prior** $\pi(v)$ over views. The resulting **Weighted Invariant Score** incorporates these priors:
+Now, consider the **Generalized Mean** with exponent $k$, defined as $M_k(p_0, p_1) = \left(\frac{p_0^k + p_1^k}{2}\right)^{1/k}$. The second-order Taylor expansion of $M_k$ around the mean $\bar{p}$ is given by:
 
 $$
-\mathcal{J}(y) \approx \underbrace{\mathbb{E}_{\pi}[\hat{p}(y|v)]}_{\text{Weighted Confidence}} - \lambda \cdot \underbrace{\text{Var}_{\pi}[\hat{p}(y|v)]}_{\text{Weighted Variance}}
+M_k(p_0, p_1) \approx \bar p(a) + (k-1)\frac{\delta(a)^2}{2\bar p(a)}.
 $$
 
----
+By equating the coefficients of the variance term $\delta(a)^2$ in the objective and the generalized mean, we establish a direct mapping between the penalty weight $\lambda$ and the mean exponent $k$:
+
+$$
+-\lambda = k - 1 \implies k = 1 - \lambda.
+$$
+
+This mapping allows us to categorize the behavior of the selector across the spectrum of $\lambda$:
+
+- **$\lambda = -1 \implies k = 2$ (Quadratic Mean / RMS):** The objective effectively *adds* a variance bonus ($\approx \bar{p} + \frac{\delta^2}{2\bar{p}}$). This is "risk-seeking" and prefers disagreement, making it unsuitable for consistency checking.
+- **$\lambda = 0 \implies k = 1$ (Arithmetic Mean):** The objective maximizes $\bar{p}$ (Standard Voting). It ignores view consistency entirely (coefficient of $\delta^2$ is 0).
+- **$\lambda = 1 \implies k = 0$ (Geometric Mean):** The objective maximizes $\sqrt{p_0 p_1}$. It penalizes variance with a coefficient of $-1$ ($\approx \bar{p} - \frac{\delta^2}{2\bar{p}}$).
+- **$\lambda = 2 \implies k = -1$ (Harmonic Mean):** The objective maximizes $\frac{2 p_0 p_1}{p_0 + p_1}$. It penalizes variance with a coefficient of $-2$ ($\approx \bar{p} - 2\frac{\delta^2}{2\bar{p}}$), effectively doubling the penalty compared to the Geometric Mean.
+
+### 🌐 Multiple Views Case and Generalized Harmonic Mean
+
+We extend the analysis of the Harmonic Mean Selector from the binary view setting ($K=2$) to the general multi-view setting ($K \ge 2$). We show that maximizing the view-invariant Infomax objective with $\lambda=2$ is theoretically equivalent to maximizing the **Generalized Harmonic Mean** of the view probabilities.
+
+**Theorem (Generalized Harmonic Mean Selector):**
+Let there be $K$ views defined by a random variable $X$ uniformly distributed over $\{x_1, \dots, x_K\}$. Let $p_k(a) = p(A=a \mid X=x_k)$ be the prediction probability for candidate $a$ under view $k$.
+Under assumptions of non-degeneracy and balanced confidence, maximizing the second-order approximation of the objective $J_2(a) = I(Z_a; A) - 2I(Z_a; X)$ recovers the Generalized Harmonic Mean of the $K$ probabilities:
+
+$$
+y^\star = \arg\max_a \left( \frac{1}{K} \sum_{k=1}^K \frac{1}{p_k(a)} \right)^{-1}.
+$$
+
+*Proof Sketch:*
+Looking at the objective function and the harmonic mean separately using Taylor expansions around the arithmetic mean $\bar{p}(a) = \frac{1}{K}\sum_{k=1}^K p_k(a)$:
+
+1. **Expansion of the Infomax Objective**:
+   The mutual information $I(Z_a; A)$ approximates to the mean probability $\bar{p}(a)$. The mutual information $I(Z_a; X)$ approximates to the variance scaled by the mean: $I(Z_a; X) \approx \frac{\sigma^2(a)}{2\bar{p}(a)(1-\bar{p}(a))}$.
+   With $\lambda=2$ and simplifying, the objective becomes:
+   $$
+   J_2(a) \approx \bar{p}(a) - \frac{\sigma^2(a)}{\bar{p}(a)}.
+   $$
+
+2. **Expansion of the Generalized Harmonic Mean**:
+   Approximating the harmonic mean $H_K(a)$ around $\bar{p}(a)$ also yields:
+   $$
+   H_K(a) \approx \bar{p}(a) - \frac{\sigma^2(a)}{\bar{p}(a)}.
+   $$
+
+Comparing the two expansions, we see that maximizing the Infomax objective $J_2$ is equivalent (at the second order) to maximizing the Generalized Harmonic Mean. The variance term acts as a penalty, discouraging answers where model confidence fluctuates heavily across views.
+
+### ⚖️ Non-uniform prior and Weighted Invariant Score
+
+Finally, we generalize to the case of a **non-uniform prior** over views. Let the prior over the views be parameterized by $\pi \in (0,1)$, such that $p(X=x) = \pi$ and $p(X=x') = 1-\pi$.
+
+The marginal probability becomes the weighted average $\bar{p}_\pi(a) = \pi p_0(a) + (1-\pi) p_1(a)$. The mutual information $I(Z_a; X)$ generalizes to the weighted sum of KL divergences:
+
+$$
+I(Z_a; X) = \pi \text{KL}\bigl(p_0(a) \parallel \bar{p}_\pi(a)\bigr) + (1-\pi) \text{KL}\bigl(p_1(a) \parallel \bar{p}_\pi(a)\bigr).
+$$
+
+Using second-order approximations, and assuming balanced confidence, the objective function $J_2(a)$ becomes:
+
+$$
+J_2(a) \approx \bar{p}_\pi(a) - \frac{\pi(1-\pi)(p_0(a)-p_1(a))^2}{\bar{p}_\pi(a)}.
+$$
+
+This **Weighted Invariant Score** generalizes the Harmonic Mean Selector. When $\pi=0.5$, the variance term is $\pi(1-\pi)=0.25$, recovering the original form. For $\pi \neq 0.5$, the objective balances the *weighted* confidence against the consistency penalty, where the penalty strength is modulated by the prior variance term $\pi(1-\pi)$.
 
 ## 📊 Main Results
 

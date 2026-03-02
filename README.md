@@ -11,10 +11,10 @@
 [![Quick Start](https://img.shields.io/badge/⚡-Quick%20Start-FF9800.svg)](#-quick-start)
 [![Contact](https://img.shields.io/badge/📬-Contact-9C27B0.svg)](mailto:ru.wang@weblab.t.u-tokyo.ac.jp)
 
-**Ru Wang**$^1$, **Wei Huang**$^{2,3}$, **Qi Cao**$^1$, **Yusuke Iwasawa**$^1$, **Yutaka Matsuo**$^1$, **Jiaxian Guo**$^4$
+**Ru Wang**<sup>1</sup>, **Wei Huang**<sup>2,3</sup>, **Qi Cao**<sup>1</sup>, **Yusuke Iwasawa**<sup>1</sup>, **Yutaka Matsuo**<sup>1</sup>, **Jiaxian Guo**<sup>4</sup>
 
-$^1$The University of Tokyo &emsp; $^2$RIKEN Center for Advanced Intelligence Project <br>
-$^3$The Institute of Statistical Mathematics &emsp; $^4$Google Research Australia
+<sup>1</sup>The University of Tokyo &emsp; <sup>2</sup>RIKEN Center for Advanced Intelligence Project <br>
+<sup>3</sup>The Institute of Statistical Mathematics &emsp; <sup>4</sup>Google Research Australia
 
 </div>
 
@@ -389,7 +389,7 @@ If you find Self-Harmony useful in your research, please cite our paper:
 ```bibtex
 @inproceedings{
 wang2026selfharmony,
-title={{SELF}-{HARMONY}: {LEARNING} {TO} {HARMONIZE} {SELF}-{SUPERVISION} {AND} {SELF}-{PLAY} {IN} {TEST}-{TIME} {REINFORCEMENT} {LEARNING}},
+title={Self-Harmony: Learning to Harmonize Self-Supervision and Self-Play in Test-Time Reinforcement Learning},
 author={Ru Wang and Wei Huang and Qi Cao and Yusuke Iwasawa and Yutaka Matsuo and Jiaxian Guo},
 booktitle={The Fourteenth International Conference on Learning Representations},
 year={2026},

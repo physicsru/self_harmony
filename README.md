@@ -393,7 +393,8 @@ title={Self-Harmony: Learning to Harmonize Self-Supervision and Self-Play in Tes
 author={Ru Wang and Wei Huang and Qi Cao and Yusuke Iwasawa and Yutaka Matsuo and Jiaxian Guo},
 booktitle={The Fourteenth International Conference on Learning Representations},
 year={2026},
-url={https://openreview.net/forum?id=ZzG6oJ5ehI}
+url={https://openreview.net/forum?id=ZzG6oJ5ehI},
+note={arXiv preprint arXiv:2511.01191}
 }
 ```
 
